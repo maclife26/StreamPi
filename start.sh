@@ -5,5 +5,5 @@ set -e
 BASEDIR=$(dirname "$0")
 LOGFILE="$BASEDIR/server.log"
 
-echo "Starting in background and writing log file to $LOGFILE"
+echo "Comenzando en background y escribiendo log file $LOGFILE"
 nohup python3 -u "$BASEDIR/main.py" "$@" &>> "$LOGFILE" &

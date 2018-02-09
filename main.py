@@ -13,25 +13,25 @@ from PIL import Image
 import pygame.camera
 import pygame.image
 
-parser = argparse.ArgumentParser(description='Start the PyImageStream server.')
+parser = argparse.ArgumentParser(description='Comenzar el StreamPi.')
 
-parser.add_argument('--port', default=8888, type=int, help='Web server port (default: 8888)')
-parser.add_argument('--camera', default=0, type=int, help='Camera index, first camera is 0 (default: 0)')
-parser.add_argument('--width', default=640, type=int, help='Width (default: 640)')
-parser.add_argument('--height', default=480, type=int, help='Height (default: 480)')
-parser.add_argument('--quality', default=70, type=int, help='JPEG Quality 1 (worst) to 100 (best) (default: 70)')
-parser.add_argument('--stopdelay', default=7, type=int, help='Delay in seconds before the camera will be stopped after '
-                                                             'all clients have disconnected (default: 7)')
+parser.add_argument('--port', default=8888, type=int, help='Puerto del servidor Web (default: 8888)')
+parser.add_argument('--camera', default=0, type=int, help='Camara index, primera camera es 0 (default: 0)')
+parser.add_argument('--width', default=460, type=int, help='Ancho (default: 640)')
+parser.add_argument('--height', default=360, type=int, help='Alto (default: 480)')
+parser.add_argument('--quality', default=70, type=int, help='JPEG Calidad 1 (peor) a 100 (mejor) (default: 70)')
+parser.add_argument('--stopdelay', default=7, type=int, help='Delay en segundos (default: 7)')
+
 args = parser.parse_args()
 
 class Camera:
 
     def __init__(self, index, width, height, quality, stopdelay):
-        print("Initializing camera...")
+        print("Iniciando camara...")
         pygame.camera.init()
         camera_name = pygame.camera.list_cameras()[index]
         self._cam = pygame.camera.Camera(camera_name, (width, height))
-        print("Camera initialized")
+        print("Camara iniciada")
         self.is_started = False
         self.stop_requested = False
         self.quality = quality
@@ -39,7 +39,7 @@ class Camera:
 
     def request_start(self):
         if self.stop_requested:
-            print("Camera continues to be in use")
+            print("Camara continua en uso")
             self.stop_requested = False
         if not self.is_started:
             self._start()
@@ -47,20 +47,20 @@ class Camera:
     def request_stop(self):
         if self.is_started and not self.stop_requested:
             self.stop_requested = True
-            print("Stopping camera in " + str(self.stopdelay) + " seconds...")
+            print("Parando camara en: " + str(self.stopdelay) + " segundos...")
             tornado.ioloop.IOLoop.current().call_later(self.stopdelay, self._stop)
 
     def _start(self):
-        print("Starting camera...")
+        print("Iniciando camara...")
         self._cam.start()
-        print("Camera started")
+        print("Camara iniciada")
         self.is_started = True
 
     def _stop(self):
         if self.stop_requested:
-            print("Stopping camera now...")
+            print("Deteniendo camara ahora...")
             self._cam.stop()
-            print("Camera stopped")
+            print("Camara detenida")
             self.is_started = False
             self.stop_requested = False
 
@@ -80,12 +80,12 @@ class ImageWebSocket(tornado.websocket.WebSocketHandler):
     clients = set()
 
     def check_origin(self, origin):
-        # Allow access from every origin
+        # Permite el acceso desde cualquier origen
         return True
 
     def open(self):
         ImageWebSocket.clients.add(self)
-        print("WebSocket opened from: " + self.request.remote_ip)
+        print("WebSocket abierto desde: " + self.request.remote_ip)
         camera.request_start()
 
     def on_message(self, message):
@@ -94,7 +94,7 @@ class ImageWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_close(self):
         ImageWebSocket.clients.remove(self)
-        print("WebSocket closed from: " + self.request.remote_ip)
+        print("WebSocket cerrado desde: " + self.request.remote_ip)
         if len(ImageWebSocket.clients) == 0:
             camera.request_stop()
 
@@ -108,6 +108,6 @@ app = tornado.web.Application([
     ])
 app.listen(args.port)
 
-print("Starting server: http://localhost:" + str(args.port) + "/")
+print("Comenzando servidor: http://localhost:" + str(args.port) + "/")
 
 tornado.ioloop.IOLoop.current().start()

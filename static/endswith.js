@@ -1,9 +1,9 @@
-/*! https://mths.be/endswith v0.2.0 by @mathias */
+
 if (!String.prototype.endsWith) {
 	(function() {
-		'use strict'; // needed to support `apply`/`call` with `undefined`/`null`
+		'use strict'; 
 		var defineProperty = (function() {
-			// IE 8 only supports `Object.defineProperty` on DOM elements
+			
 			try {
 				var object = {};
 				var $defineProperty = Object.defineProperty;
@@ -29,7 +29,7 @@ if (!String.prototype.endsWith) {
 				if (position !== undefined) {
 					// `ToInteger`
 					pos = position ? Number(position) : 0;
-					if (pos != pos) { // better `isNaN`
+					if (pos != pos) { // `isNaN`
 						pos = 0;
 					}
 				}
